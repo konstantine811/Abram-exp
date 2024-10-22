@@ -6,7 +6,7 @@ const NavigationDrawer = () => {
   const navigate = useNavigate(); // Initialize the useNavigate hook
   const location = useLocation();
   return (
-    <div className="absolute bottom-4 z-30 left-1/2 -translate-x-1/2">
+    <div className="absolute bottom-8 z-30 left-1/2 -translate-x-1/2">
       <ButtonGroup className="border rounded-2xl">
         {navigationConfig.map((config) => {
           const isActive = location.pathname === config.path;

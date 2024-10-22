@@ -17,8 +17,8 @@ function App() {
           />
         ))}
       </Routes>
-      <div className="fixed bottom-4 right-3 z-50">
-        <Chip>Created by Abramkin Constantine</Chip>
+      <div className="fixed bottom-1 right-1 z-50">
+        <Chip className="text-xs p-0">Created by Abramkin Constantine</Chip>
       </div>
     </BrowserRouter>
   );
