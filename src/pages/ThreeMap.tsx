@@ -193,7 +193,7 @@ const ThreeMap = () => {
         <div className="w-full h-full flex">
           <ListboxWrapper
             ref={listWrapRef}
-            className="pointer-events-auto m-2 shadow-2xl bg-content1 justify-self-end overflow-auto"
+            className="pointer-events-auto m-2 shadow-2xl bg-content1 justify-self-end overflow-auto max-w-[150px] hidden sm:block"
           >
             <Listbox aria-label="Actions">
               {scrollData.map((place, index) => {
