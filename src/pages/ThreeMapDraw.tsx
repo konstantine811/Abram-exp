@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl, { Map } from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { FeatureCollection } from "geojson";
+import { Leva, useControls } from "leva";
 
 const SOURCE_NAMES = {
   ThreePolygons: "3d-polygon-source",
@@ -15,13 +16,41 @@ const ThreeMapDraw = () => {
     features: [],
   });
 
+  // Використовуємо Leva для контролю за кутами та інтенсивністю світла
+  const { azimuthalAngle, polarAngle, intensity } = useControls({
+    azimuthalAngle: { value: 200, min: 0, max: 360, step: 1 },
+    polarAngle: { value: 60, min: 0, max: 90, step: 1 },
+    intensity: { value: 0.8, min: 0, max: 1, step: 0.01 },
+  });
+
+  // Оновлення положення сонця при зміні контролів
+  useEffect(() => {
+    console.log("on change");
+    if (map) {
+      // Add a directional light
+      map.setLights([
+        {
+          id: "sun_light",
+          type: "directional",
+          properties: {
+            color: "rgba(255.0, 255.0, 0.0, 1.0)",
+            intensity: intensity,
+            direction: [azimuthalAngle, polarAngle],
+            "cast-shadows": true,
+            "shadow-intensity": 0.2,
+          },
+        },
+      ]);
+    }
+  }, [map, azimuthalAngle, polarAngle, intensity]);
+
   useEffect(() => {
     mapboxgl.accessToken =
       "pk.eyJ1Ijoia29uc3RhbnRpbmU4MTEiLCJhIjoiY2themphMDhpMGsyazJybWlpbDdmMGthdSJ9.m2RIe_g8m5dqbce0JrO73w";
     if (mapContainerRef.current && !mapRef.current) {
       mapRef.current = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: "mapbox://styles/mapbox/light-v11",
+        style: "mapbox://styles/konstantine811/clxll1zwx00eg01qqcrlphbmk",
         center: [31.1656, 48.3794],
         zoom: 5,
       });
@@ -107,6 +136,7 @@ const ThreeMapDraw = () => {
   return (
     <div className="min-h-screen relative">
       <div className="min-h-screen relative z-10" ref={mapContainerRef} />
+      <Leva oneLineLabels={true} />
       <div className="absolute top-0 left-0 z-20 w-full h-full pointer-events-none">
         {/* {controls} */}
       </div>

@@ -172,7 +172,7 @@ const ThreeMap = () => {
     if (mapContainerRef.current && !mapRef.current) {
       mapRef.current = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: "mapbox://styles/mapbox/light-v11",
+        style: "mapbox://styles/konstantine811/clxll1zwx00eg01qqcrlphbmk",
         center: [31.1656, 48.3794],
         zoom: 5,
       });
