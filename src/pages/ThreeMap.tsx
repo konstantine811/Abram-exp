@@ -38,7 +38,7 @@ const ThreeMap = () => {
   const [map, setMap] = useState<Map>();
   const listWrapRef = useRef<HTMLDivElement | null>(null);
   const [places, setPlaces] = useState<IPlaceData[]>([]);
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const { scrollData } = useVirtualScroll<IPlaceData>({
     array: places,
     childHeight: 40,
@@ -46,12 +46,11 @@ const ThreeMap = () => {
   });
 
   useEffect(() => {
-    if (map && places) {
+    if (map && places && places.length) {
       // Convert city data to GeoJSON
       const populations = places.map((city) => parseInt(city.population, 10));
       const maxPopulation = Math.max(...populations);
       const minPopulation = Math.min(...populations);
-
       const newMin = 0; // The minimum value for normalization
       const newMax = 300000; // The maximum value for normalization
       const geojson = {
@@ -155,7 +154,6 @@ const ThreeMap = () => {
               Number(b.population.replace(/[^0-9]/g, "").trim()) || 0;
             return popB - popA;
           });
-          console.log("sortedData", sortedData);
           setPlaces(sortedData);
         }
       } catch (err) {
@@ -186,6 +184,11 @@ const ThreeMap = () => {
   return (
     <div className="min-h-screen relative">
       <div className="min-h-screen relative z-10" ref={mapContainerRef} />
+      {loading && (
+        <div className="fixed top-0 w-full h-full z-[10000] bg-black/15 backdrop-blur-sm flex justify-center items-center text-black">
+          Please wait, Loading a data
+        </div>
+      )}
       <div className="absolute top-0 left-0 z-20 w-full h-full pointer-events-none">
         <div className="w-full h-full flex">
           <ListboxWrapper
