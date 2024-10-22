@@ -3,6 +3,7 @@ import mapboxgl, { Map } from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { FeatureCollection } from "geojson";
 import { Leva, useControls } from "leva";
+import Geolocation from "../components/Geolocation";
 
 const SOURCE_NAMES = {
   ThreePolygons: "3d-polygon-source",
@@ -25,19 +26,18 @@ const ThreeMapDraw = () => {
 
   // Оновлення положення сонця при зміні контролів
   useEffect(() => {
-    console.log("on change");
+    // console.log("on change");
     if (map) {
       // Add a directional light
+      // console.log(map.getLights());
       map.setLights([
         {
-          id: "sun_light",
-          type: "directional",
+          id: "flat",
+          type: "flat",
           properties: {
             color: "rgba(255.0, 255.0, 0.0, 1.0)",
             intensity: intensity,
-            direction: [azimuthalAngle, polarAngle],
-            "cast-shadows": true,
-            "shadow-intensity": 0.2,
+            position: [azimuthalAngle, polarAngle, 100],
           },
         },
       ]);
@@ -139,6 +139,7 @@ const ThreeMapDraw = () => {
       <Leva oneLineLabels={true} />
       <div className="absolute top-0 left-0 z-20 w-full h-full pointer-events-none">
         {/* {controls} */}
+        {map && <Geolocation map={map} />}
       </div>
     </div>
   );
