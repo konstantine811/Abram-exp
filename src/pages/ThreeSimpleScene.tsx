@@ -1,32 +1,8 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import Polygon from "../components/Polygon";
 import { Grid, OrbitControls } from "@react-three/drei";
-import { DoubleSide, Vector3 } from "three";
-import { BallCollider, Physics, RigidBody } from "@react-three/rapier";
-import { useRef } from "react";
-
-function Pointer({ vec = new Vector3() }) {
-  const ref = useRef();
-  useFrame(({ mouse, viewport }) => {
-    ref.current?.setNextKinematicTranslation(
-      vec.set(
-        (mouse.x * viewport.width) / 2,
-        (mouse.y * viewport.height) / 2,
-        0
-      )
-    );
-  });
-  return (
-    <RigidBody
-      position={[0, 0, 0]}
-      type="kinematicPosition"
-      colliders={false}
-      ref={ref}
-    >
-      <BallCollider args={[1]} />
-    </RigidBody>
-  );
-}
+import { DoubleSide } from "three";
+import { Physics, RigidBody } from "@react-three/rapier";
 
 const ThreeSimpleScene = () => {
   return (

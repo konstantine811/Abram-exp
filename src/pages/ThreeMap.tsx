@@ -155,11 +155,6 @@ const ThreeMap = () => {
               Number(b.population.replace(/[^0-9]/g, "").trim()) || 0;
             return popB - popA;
           });
-          sortedData.forEach((place, index) => {
-            if (place.name === "Харків") {
-              console.log("place", place);
-            }
-          });
           console.log("sortedData", sortedData);
           setPlaces(sortedData);
         }
