@@ -152,10 +152,10 @@ const ThreeMap = () => {
 
   // Використовуємо Leva для контролю за кутами та інтенсивністю світла
   const { cellSize, gap, maxHeight, buildMaxHeight } = useControls({
-    cellSize: { value: 1000, min: 100, max: 30000, step: 1 },
+    cellSize: { value: 1000, min: 500, max: 30000, step: 1 },
     gap: { value: 100, min: 0, max: 10000, step: 1 },
-    maxHeight: { value: 244500, min: 1000, max: 1000000, step: 10 },
-    buildMaxHeight: { value: 7720, min: 100, max: 100000, step: 10 },
+    maxHeight: { value: 244500, min: 10000, max: 1000000, step: 10 },
+    buildMaxHeight: { value: 7720, min: 1000, max: 100000, step: 10 },
   });
 
   useEffect(() => {
@@ -225,6 +225,27 @@ const ThreeMap = () => {
         });
 
         map.addLayer({
+          id: "population-labels",
+          type: "symbol",
+          source: "cities",
+          minzoom: 10,
+          layout: {
+            "text-field": ["get", "population"],
+            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+            "text-size": 8,
+            "symbol-z-elevate": true,
+            "symbol-z-order": "viewport-y",
+            "text-allow-overlap": true,
+            "text-offset": [0, -4],
+          },
+          paint: {
+            "text-color": "#86efac",
+            "text-opacity": 0.8,
+          },
+          filter: ["==", "isTopRank", true],
+        });
+
+        map.addLayer({
           id: "name-labels",
           type: "symbol",
           source: "cities",
@@ -235,13 +256,11 @@ const ThreeMap = () => {
             "text-size": 9,
             "symbol-z-elevate": true,
             "symbol-z-order": "viewport-y",
-            "text-padding": 10,
             "text-offset": [0, -2],
-            "text-allow-overlap": true,
           },
           paint: {
             "text-color": "#FFFFFF",
-            "text-opacity": 1,
+            "text-opacity": 0.5,
           },
           filter: ["==", "isTopRank", true],
         });
