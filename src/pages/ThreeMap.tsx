@@ -154,7 +154,7 @@ const ThreeMap = () => {
       // Convert city data to GeoJSON
       const newMin = 0; // The minimum value for normalization
       const newMax = 50000; // The maximum value for normalization
-      const cellSize = 1000;
+      const cellSize = 3000;
       const populations = places.map((city) => parseInt(city.population, 10));
       const maxPopulation = Math.max(...populations);
       const minPopulation = Math.min(...populations);
@@ -169,7 +169,7 @@ const ThreeMap = () => {
             gap: 100,
             minPopulation,
             maxPopulation,
-            newMax: 100000,
+            newMax: 600000,
             newMin: 0,
           });
         })
