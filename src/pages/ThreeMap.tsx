@@ -32,6 +32,110 @@ function createSquare(center: [number, number], sizeInMeters: number) {
   };
 }
 
+interface ICreateMultipleExtrusions {
+  center: [number, number];
+  totalPopulation: number;
+  maxHeight: number;
+  cellSize: number;
+  name: string;
+  gap: number;
+  minPopulation: number;
+  maxPopulation: number;
+  newMax: number;
+  newMin: number;
+}
+function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
+  const {
+    cellSize,
+    center,
+    gap,
+    maxHeight,
+    maxPopulation,
+    minPopulation,
+    name,
+    newMax,
+    newMin,
+    totalPopulation,
+  } = params;
+  const resultFeatures = [];
+  let remainingPopulation = totalPopulation;
+
+  // Центральний стовпчик
+  const centralHeight = Math.min(remainingPopulation, maxHeight);
+  const normalizedPopulation =
+    ((totalPopulation - minPopulation) / (maxPopulation - minPopulation)) *
+      (newMax - newMin) +
+    newMin;
+  remainingPopulation -= centralHeight;
+  let currentLevel = 1;
+
+  resultFeatures.push({
+    type: "Feature",
+    geometry: createSquare(center, cellSize),
+    properties: {
+      height: centralHeight,
+      normalizedPopulation,
+      population: totalPopulation,
+      textOffsetY: -(normalizedPopulation / 1000),
+      isTopRank: true,
+      name: `${name}_${currentLevel}`,
+    },
+  });
+
+  // Корекція координат
+  const latCorrectionFactor = 180 / Math.PI / 6378137; // Зміна широти в градусах для одного метра
+  const lonCorrectionFactor =
+    180 / Math.PI / (6378137 * Math.cos(center[1] * (Math.PI / 180))); // Зміна довготи
+
+  let currentMaxHeight = maxHeight - 1000; // Початковий рівень висоти для наступних квадратів
+  let radius = 1;
+
+  // Продовжуємо поки є залишкове населення
+  while (remainingPopulation > 0 && currentMaxHeight > 0) {
+    for (let x = -radius; x <= radius; x++) {
+      for (let y = -radius; y <= radius; y++) {
+        // Пропускаємо центральний стовпчик
+        if (x === 0 && y === 0) continue;
+
+        if (remainingPopulation <= 0) break;
+
+        const height = Math.min(remainingPopulation, currentMaxHeight);
+        remainingPopulation -= height;
+
+        const normalizedPopulation =
+          ((remainingPopulation - minPopulation) /
+            (maxPopulation - minPopulation)) *
+            (newMax - newMin) +
+          newMin;
+
+        // Застосовуємо відступ (gap) до кожного нового квадрата
+        const newCenter: [number, number] = [
+          center[0] + (x * cellSize + x * gap) * lonCorrectionFactor, // Зміщення по довготі з відступом
+          center[1] + (y * cellSize + y * gap) * latCorrectionFactor, // Зміщення по широті з відступом
+        ];
+
+        resultFeatures.push({
+          type: "Feature",
+          geometry: createSquare(newCenter, cellSize),
+          properties: {
+            height: height,
+            normalizedPopulation,
+            population: totalPopulation,
+            textOffsetY: -(normalizedPopulation / 1000),
+            name: `${name}_${currentLevel}`,
+          },
+        });
+      }
+    }
+
+    currentLevel++;
+    currentMaxHeight -= 1000; // Зменшуємо висоту для наступного рівня
+    radius++; // Збільшуємо радіус для наступного шару
+  }
+
+  return resultFeatures;
+}
+
 const ThreeMap = () => {
   const mapRef = useRef<Map>();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -48,44 +152,34 @@ const ThreeMap = () => {
   useEffect(() => {
     if (map && places && places.length) {
       // Convert city data to GeoJSON
+      const newMin = 0; // The minimum value for normalization
+      const newMax = 50000; // The maximum value for normalization
+      const cellSize = 1000;
       const populations = places.map((city) => parseInt(city.population, 10));
       const maxPopulation = Math.max(...populations);
       const minPopulation = Math.min(...populations);
-      const newMin = 0; // The minimum value for normalization
-      const newMax = 300000; // The maximum value for normalization
+      const features = places
+        .map((city) => {
+          return createMultipleExtrusions({
+            center: [city.lon, city.lat],
+            totalPopulation: Number(city.population.replace(/[^0-9]/g, "")),
+            maxHeight: newMax,
+            cellSize,
+            name: city.name,
+            gap: 100,
+            minPopulation,
+            maxPopulation,
+            newMax: 100000,
+            newMin: 0,
+          });
+        })
+        .flat(1);
+      console.log("features", features);
       const geojson = {
         type: "FeatureCollection",
-        features: places.map((city) => {
-          const population = parseInt(city.population, 10);
-
-          // Normalize population value between newMin and newMax
-          const normalizedPopulation =
-            ((population - minPopulation) / (maxPopulation - minPopulation)) *
-              (newMax - newMin) +
-            newMin;
-
-          // Calculate polygon size based on normalized population
-          let sizeInMeters = 500;
-          if (normalizedPopulation > 10000) {
-            sizeInMeters = 8000;
-          } else if (normalizedPopulation > 1000) {
-            sizeInMeters = 4000;
-          } else if (normalizedPopulation > 100) {
-            sizeInMeters = 3000;
-          } else if (normalizedPopulation < 100) {
-            sizeInMeters = 1000;
-          }
-          return {
-            type: "Feature",
-            geometry: createSquare([city.lon, city.lat], sizeInMeters),
-            properties: {
-              ...city,
-              population: city.population,
-              normalizedPopulation: normalizedPopulation,
-            },
-          };
-        }),
+        features: features,
       } as FeatureCollection;
+      console.log("geojson", geojson);
       if (!map.getSource("cities")) {
         const layers = map.getStyle()?.layers;
         const labelLayerId = layers?.find(
@@ -109,9 +203,11 @@ const ThreeMap = () => {
                 ["linear"],
                 ["get", "normalizedPopulation"],
                 newMin,
-                "#00008b", // Dark blue for min population
+                "#ffffff", // Dark blue for min population
+                newMax / 2,
+                "#f97316", // Dark blue for min population
                 newMax,
-                "#8b0000", // "Blood red" for max population
+                "#ef4444", // "Blood red" for max population
               ],
               "fill-extrusion-height": ["get", "normalizedPopulation"],
               "fill-extrusion-base": 0, // Optional, sets the base extrusion height
@@ -119,21 +215,49 @@ const ThreeMap = () => {
           },
           labelLayerId
         );
-
+        map.addLayer(
+          {
+            id: "name-labels",
+            type: "symbol",
+            source: "cities",
+            minzoom: 10,
+            layout: {
+              "text-field": ["get", "name"], // Назва, що буде показана на мітці
+              "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+              "text-size": 7,
+              "symbol-z-elevate": true,
+              "symbol-z-order": "viewport-y",
+              "text-offset": [0, -3], // Offset labels slightly to avoid overlapping polygons
+              "text-allow-overlap": true, // Allow labels to overlap with other labels
+            },
+            paint: {
+              "text-color": "#FFFFFF", // Колір мітки
+              "text-opacity": 1,
+            },
+            filter: ["==", "isTopRank", true],
+          },
+          labelLayerId // Insert this label layer above the 3D polygons but below other labels
+        );
         map.addLayer(
           {
             id: "population-labels",
             type: "symbol",
+            minzoom: 9,
             source: "cities",
             layout: {
               "text-field": ["get", "population"], // Use population as the label
               "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-              "text-size": 12,
+              "text-size": 10,
+              "symbol-z-elevate": true,
+              "symbol-z-order": "viewport-y",
+              "text-offset": [0, -3], // Offset labels slightly to avoid overlapping polygons
+              "text-allow-overlap": true, // Allow labels to overlap with other labels
             },
             paint: {
               "text-color": "#bef264", // Set label color
-              "text-opacity": 0.3,
+              "text-opacity": 1,
             },
+            filter: ["==", "isTopRank", true],
           },
           labelLayerId // Insert this label layer above the 3D polygons but below other labels
         );
