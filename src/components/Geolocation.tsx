@@ -89,7 +89,7 @@ const GeolocationExample = ({ map }: Props) => {
     if (navigator.geolocation) {
       // Використовуємо watchPosition для отримання оновлень у реальному часі
       navigator.geolocation.watchPosition(handlePositionUpdate, handleError, {
-        enableHighAccuracy: false, // Висока точність
+        enableHighAccuracy: true, // Висока точність
         timeout: 5000, // Максимальний час очікування
         maximumAge: 0, // Максимальний вік даних
       });
