@@ -6,6 +6,7 @@ import { FeatureCollection } from "geojson";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import ListboxWrapper from "../components/ListboxWrapper";
 import useVirtualScroll from "../hooks/useVirtualScroll";
+import { useControls } from "leva";
 
 // Helper function to create square polygons
 function createSquare(center: [number, number], sizeInMeters: number) {
@@ -149,47 +150,55 @@ const ThreeMap = () => {
     ref: listWrapRef,
   });
 
+  // Використовуємо Leva для контролю за кутами та інтенсивністю світла
+  const { cellSize, gap, maxHeight, buildMaxHeight } = useControls({
+    cellSize: { value: 1000, min: 100, max: 30000, step: 1 },
+    gap: { value: 100, min: 0, max: 10000, step: 1 },
+    maxHeight: { value: 244500, min: 1000, max: 1000000, step: 10 },
+    buildMaxHeight: { value: 7720, min: 100, max: 100000, step: 10 },
+  });
+
   useEffect(() => {
     if (map && places && places.length) {
-      // Convert city data to GeoJSON
-      const newMin = 0; // The minimum value for normalization
-      const newMax = 50000; // The maximum value for normalization
-      const cellSize = 3000;
+      // Перетворюємо дані в GeoJSON формат на основі cellSize
+      const newMin = 0;
+      const newMax = buildMaxHeight;
       const populations = places.map((city) => parseInt(city.population, 10));
       const maxPopulation = Math.max(...populations);
       const minPopulation = Math.min(...populations);
+      console.log("maxheight", maxHeight);
       const features = places
         .map((city) => {
           return createMultipleExtrusions({
             center: [city.lon, city.lat],
             totalPopulation: Number(city.population.replace(/[^0-9]/g, "")),
             maxHeight: newMax,
-            cellSize,
+            cellSize, // Використовуємо динамічне значення cellSize
             name: city.name,
-            gap: 100,
+            gap,
             minPopulation,
             maxPopulation,
-            newMax: 600000,
+            newMax: maxHeight,
             newMin: 0,
           });
         })
         .flat(1);
-      console.log("features", features);
+
       const geojson = {
         type: "FeatureCollection",
         features: features,
       } as FeatureCollection;
-      console.log("geojson", geojson);
-      if (!map.getSource("cities")) {
-        const layers = map.getStyle()?.layers;
-        const labelLayerId = layers?.find(
-          (layer) => layer.type === "symbol" && layer.layout?.["text-field"]
-        )?.id;
+
+      // Оновлюємо джерело даних Mapbox
+      if (map.getSource("cities")) {
+        (map.getSource("cities") as mapboxgl.GeoJSONSource).setData(geojson);
+      } else {
         map.addSource("cities", {
           type: "geojson",
           data: geojson,
         });
-        // Add the fill-extrusion layer
+
+        // Додаємо шари з екструдованими моделями та лейбами
         map.addLayer({
           id: "city-extrusion",
           type: "fill-extrusion",
@@ -202,66 +211,43 @@ const ThreeMap = () => {
               ["linear"],
               ["get", "normalizedPopulation"],
               newMin,
-              "#ffffff", // Dark blue for min population
-              newMax / 2,
-              "#f97316", // Dark blue for min population
-              newMax,
-              "#ef4444", // "Blood red" for max population
+              "#172554",
+              maxHeight / 4,
+              "#4f46e5",
+              maxHeight / 2,
+              "#5eead4",
+              maxHeight,
+              "#e11d48",
             ],
             "fill-extrusion-height": ["get", "normalizedPopulation"],
-            "fill-extrusion-base": 0, // Optional, sets the base extrusion height
+            "fill-extrusion-base": 0,
           },
         });
-        map.addLayer(
-          {
-            id: "name-labels",
-            type: "symbol",
-            source: "cities",
-            minzoom: 10,
-            layout: {
-              "text-field": ["get", "name"], // Назва, що буде показана на мітці
-              "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-              "text-size": 9,
-              "symbol-z-elevate": true,
-              "symbol-z-order": "viewport-y",
-              "text-padding": 10,
-              "text-offset": [0, -2], // Offset labels slightly to avoid overlapping polygons
-              "text-allow-overlap": true,
-            },
-            paint: {
-              "text-color": "#FFFFFF", // Колір мітки
-              "text-opacity": 1,
-            },
-            filter: ["==", "isTopRank", true],
-          },
-          labelLayerId // Insert this label layer above the 3D polygons but below other labels
-        );
-        map.addLayer(
-          {
-            id: "population-labels",
-            type: "symbol",
-            minzoom: 7,
-            source: "cities",
-            layout: {
-              "text-field": ["get", "population"], // Use population as the label
-              "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-              "text-size": 10,
-              "symbol-z-elevate": true,
-              "symbol-z-order": "viewport-y",
 
-              "text-offset": [0, -3], // Offset labels slightly to avoid overlapping polygons
-            },
-            paint: {
-              "text-color": "#bef264", // Set label color
-              "text-opacity": 1,
-            },
-            filter: ["==", "isTopRank", true],
+        map.addLayer({
+          id: "name-labels",
+          type: "symbol",
+          source: "cities",
+          minzoom: 10,
+          layout: {
+            "text-field": ["get", "name"],
+            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+            "text-size": 9,
+            "symbol-z-elevate": true,
+            "symbol-z-order": "viewport-y",
+            "text-padding": 10,
+            "text-offset": [0, -2],
+            "text-allow-overlap": true,
           },
-          labelLayerId // Insert this label layer above the 3D polygons but below other labels
-        );
+          paint: {
+            "text-color": "#FFFFFF",
+            "text-opacity": 1,
+          },
+          filter: ["==", "isTopRank", true],
+        });
       }
     }
-  }, [map, places]);
+  }, [map, places, cellSize, gap, buildMaxHeight, maxHeight]); // Додаємо залежність на `cellSize`
 
   useEffect(() => {
     const fetchData = async () => {
