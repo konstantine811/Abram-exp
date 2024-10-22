@@ -78,7 +78,7 @@ function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
       population: totalPopulation,
       textOffsetY: -(normalizedPopulation / 1000),
       isTopRank: true,
-      name: `${name}_${currentLevel}`,
+      name,
     },
   });
 
@@ -190,31 +190,28 @@ const ThreeMap = () => {
           data: geojson,
         });
         // Add the fill-extrusion layer
-        map.addLayer(
-          {
-            id: "city-extrusion",
-            type: "fill-extrusion",
-            source: "cities",
-            maxzoom: 22,
-            minzoom: 0,
-            paint: {
-              "fill-extrusion-color": [
-                "interpolate",
-                ["linear"],
-                ["get", "normalizedPopulation"],
-                newMin,
-                "#ffffff", // Dark blue for min population
-                newMax / 2,
-                "#f97316", // Dark blue for min population
-                newMax,
-                "#ef4444", // "Blood red" for max population
-              ],
-              "fill-extrusion-height": ["get", "normalizedPopulation"],
-              "fill-extrusion-base": 0, // Optional, sets the base extrusion height
-            },
+        map.addLayer({
+          id: "city-extrusion",
+          type: "fill-extrusion",
+          source: "cities",
+          maxzoom: 22,
+          minzoom: 0,
+          paint: {
+            "fill-extrusion-color": [
+              "interpolate",
+              ["linear"],
+              ["get", "normalizedPopulation"],
+              newMin,
+              "#ffffff", // Dark blue for min population
+              newMax / 2,
+              "#f97316", // Dark blue for min population
+              newMax,
+              "#ef4444", // "Blood red" for max population
+            ],
+            "fill-extrusion-height": ["get", "normalizedPopulation"],
+            "fill-extrusion-base": 0, // Optional, sets the base extrusion height
           },
-          labelLayerId
-        );
+        });
         map.addLayer(
           {
             id: "name-labels",
@@ -224,11 +221,12 @@ const ThreeMap = () => {
             layout: {
               "text-field": ["get", "name"], // Назва, що буде показана на мітці
               "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-              "text-size": 7,
+              "text-size": 9,
               "symbol-z-elevate": true,
               "symbol-z-order": "viewport-y",
-              "text-offset": [0, -3], // Offset labels slightly to avoid overlapping polygons
-              "text-allow-overlap": true, // Allow labels to overlap with other labels
+              "text-padding": 10,
+              "text-offset": [0, -2], // Offset labels slightly to avoid overlapping polygons
+              "text-allow-overlap": true,
             },
             paint: {
               "text-color": "#FFFFFF", // Колір мітки
@@ -242,7 +240,7 @@ const ThreeMap = () => {
           {
             id: "population-labels",
             type: "symbol",
-            minzoom: 9,
+            minzoom: 7,
             source: "cities",
             layout: {
               "text-field": ["get", "population"], // Use population as the label
@@ -250,8 +248,8 @@ const ThreeMap = () => {
               "text-size": 10,
               "symbol-z-elevate": true,
               "symbol-z-order": "viewport-y",
+
               "text-offset": [0, -3], // Offset labels slightly to avoid overlapping polygons
-              "text-allow-overlap": true, // Allow labels to overlap with other labels
             },
             paint: {
               "text-color": "#bef264", // Set label color
