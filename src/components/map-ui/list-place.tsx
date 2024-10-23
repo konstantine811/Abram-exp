@@ -7,9 +7,10 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 interface Props {
   map: mapboxgl.Map | undefined;
   places: IPlaceData[];
+  onStopAnimation?: () => void;
 }
 
-const ListPlace = ({ map, places }: Props) => {
+const ListPlace = ({ map, places, onStopAnimation }: Props) => {
   const listWrapRef = useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
@@ -46,6 +47,9 @@ const ListPlace = ({ map, places }: Props) => {
                       curve: 1,
                       essential: true,
                     });
+                    if (onStopAnimation) {
+                      onStopAnimation();
+                    }
                   }}
                   style={{
                     position: "absolute",
