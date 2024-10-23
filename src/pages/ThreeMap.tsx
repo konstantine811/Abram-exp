@@ -30,8 +30,9 @@ const ThreeMap = () => {
         // Виконуємо fitBounds для встановлення меж України
         map.fitBounds(ukraineBounds, {
           padding: { top: 10, bottom: 10, left: 10, right: 10 }, // Додає відступи для меж карти
+          duration: 3000,
         });
-      }, 1000);
+      }, 10);
     }
   }, [places, map, set]);
 
