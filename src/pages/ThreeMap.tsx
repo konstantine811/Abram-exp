@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import mapboxgl, { Map } from "mapbox-gl";
+import mapboxgl, { LngLatLike, Map } from "mapbox-gl";
 import usePopuplationHistogram from "@/hooks/map-hooks/usePopulationHistogram";
 import ListPlace from "@/components/map-ui/list-place";
 import { useControls } from "leva";
@@ -7,11 +7,13 @@ import { ukraineBounds } from "@/config/map";
 
 // Helper function to create square polygons
 
+const MAP_INIT_ZOOM = 5;
+const MAP_PITCH = 60;
+
 const ThreeMap = () => {
   const mapRef = useRef<Map>();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = useState<Map>();
-
   const { loading, places } = usePopuplationHistogram({ map });
 
   const orbitAngle = useRef(0);
@@ -36,9 +38,7 @@ const ThreeMap = () => {
     }
   }, [places, map, set]);
 
-  const animateOrbit = useCallback((map: Map) => {
-    if (!isAnimatingRef.current) return; // Якщо анімація зупинена, виходимо з функції
-
+  function getCoordinates() {
     const radius = 30; // Радіус орбіти
     const centerLng = 0; // Довгота центру орбіти
     const centerLat = 0; // Широта центру орбіти
@@ -49,12 +49,19 @@ const ThreeMap = () => {
     // Обчислення нових координат на основі кута орбіти
     const lng = centerLng + radius * Math.cos(orbitAngle.current);
     const lat = centerLat + radius * Math.sin(orbitAngle.current);
+    return {
+      coord: [lng, lat] as LngLatLike,
+      angle: orbitAngle.current * (180 / Math.PI),
+    };
+  }
 
-    // Оновлення положення камери
-    map.setCenter([lng, lat]);
-    map.setBearing(orbitAngle.current * (180 / Math.PI));
-    map.setPitch(60);
-    map.setZoom(5);
+  const animateOrbit = useCallback((map: Map) => {
+    if (!isAnimatingRef.current) return; // Якщо анімація зупинена, виходимо з функції
+    const { coord, angle } = getCoordinates();
+    map.setCenter(coord);
+    map.setBearing(angle);
+    map.setPitch(MAP_PITCH);
+    map.setZoom(MAP_INIT_ZOOM);
 
     // Запланувати наступний кадр анімації, якщо вона активна
     animationId.current = requestAnimationFrame(() => animateOrbit(map));
@@ -65,9 +72,20 @@ const ThreeMap = () => {
 
     if (isAnimating && map) {
       // Якщо анімація активна, перезапускаємо її
-      animateOrbit(map);
-    } else if (!isAnimating && animationId.current) {
       // Зупиняємо анімацію, якщо isAnimating = false
+      const { coord, angle } = getCoordinates();
+      map
+        .flyTo({
+          center: coord,
+          essential: true, // this animation is considered essential with respect to prefers-reduced-motion
+          bearing: angle,
+          pitch: MAP_PITCH,
+          zoom: MAP_INIT_ZOOM,
+        })
+        .once("moveend", () => {
+          animateOrbit(map);
+        });
+    } else if (!isAnimating && animationId.current) {
       cancelAnimationFrame(animationId.current);
       animationId.current = null;
     }
@@ -81,7 +99,7 @@ const ThreeMap = () => {
         container: mapContainerRef.current,
         style: "mapbox://styles/konstantine811/clxll1zwx00eg01qqcrlphbmk",
         center: [0, 0],
-        zoom: 5,
+        zoom: MAP_INIT_ZOOM,
       });
       mapRef.current.on("load", () => {
         setMap(mapRef.current);
