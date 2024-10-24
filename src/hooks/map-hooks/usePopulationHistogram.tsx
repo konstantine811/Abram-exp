@@ -134,15 +134,34 @@ const usePopuplationHistogram = ({ map }: Props) => {
           true,
           false, // Якщо жодна з умов не виконується, не показувати лейбли
         ];
-        const textFont = ["Open Sans Regular", "Arial Unicode MS Regular"];
+        const textFont = ["Lato Regular", "Arial Unicode MS Regular"];
         const textPopulationSize = 10;
         const textNameSize = 12;
+        const textColor = "#e5e7eb";
+        const textHaloColor = "#475569";
+        const textHaloWidth = 1;
+        const textOpacity = 1;
         map.addLayer({
           id: "population-labels",
           type: "symbol",
           source: "cities",
           layout: {
-            "text-field": ["get", "population"],
+            "text-field": [
+              "case",
+              [">=", ["get", "population"], 1000000],
+              [
+                "concat",
+                ["to-string", ["/", ["get", "population"], 1000000]],
+                " млн",
+              ], // Формат для мільйонів
+              [">=", ["get", "population"], 1000],
+              [
+                "concat",
+                ["to-string", ["/", ["get", "population"], 1000]],
+                " тис",
+              ], // Формат для тисяч
+              ["to-string", ["get", "population"]], // Інше населення без змін
+            ],
             "text-font": textFont,
             "text-size": textPopulationSize,
             "symbol-z-elevate": true,
@@ -151,10 +170,10 @@ const usePopuplationHistogram = ({ map }: Props) => {
             "text-offset": [0, -2],
           },
           paint: {
-            "text-color": "#FFFFFF", // білий колір
-            "text-halo-color": "#000000", // чорна обводка для покращення контрасту
-            "text-halo-width": 1,
-            "text-opacity": 0.9, // легка прозорість
+            "text-color": textColor, // білий колір
+            "text-halo-color": textHaloColor, // чорна обводка для покращення контрасту
+            "text-halo-width": textHaloWidth,
+            "text-opacity": textOpacity, // легка прозорість
           },
           filter: filterPopulationLabel,
         });
@@ -171,10 +190,10 @@ const usePopuplationHistogram = ({ map }: Props) => {
             "text-offset": [0, -3],
           },
           paint: {
-            "text-color": "#FFFFFF", // білий колір
-            "text-halo-color": "#000000", // чорна обводка для покращення контрасту
-            "text-halo-width": 1,
-            "text-opacity": 0.9, // легка прозорість
+            "text-color": textColor, // білий колір
+            "text-halo-color": textHaloColor, // чорна обводка для покращення контрасту
+            "text-halo-width": textHaloWidth,
+            "text-opacity": textOpacity, // легка прозорість
           },
           filter: filterPopulationLabel,
         });
