@@ -5,6 +5,7 @@ export interface ICreateMultipleExtrusions {
   cellSize: number;
   name: string;
   gap: number;
+  dif: number;
   minPopulation: number;
   maxPopulation: number;
   newMax: number;

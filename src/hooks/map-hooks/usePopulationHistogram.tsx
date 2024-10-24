@@ -1,5 +1,5 @@
 import { useControls } from "leva";
-import { Map } from "mapbox-gl";
+import { FilterSpecification, Map } from "mapbox-gl";
 import { useEffect } from "react";
 import useFetchPopulationPlace from "../fetch-data/useFetchPopulationPlace";
 import { FeatureCollection } from "geojson";
@@ -12,11 +12,12 @@ interface Props {
 const usePopuplationHistogram = ({ map }: Props) => {
   const { places, loading } = useFetchPopulationPlace();
   // Використовуємо Leva для контролю за кутами та інтенсивністю світла
-  const { cellSize, gap, maxHeight, buildMaxHeight } = useControls({
+  const { cellSize, gap, maxHeight, buildMaxHeight, dif } = useControls({
     cellSize: { value: 1000, min: 500, max: 30000, step: 1 },
     gap: { value: 100, min: 0, max: 10000, step: 1 },
     maxHeight: { value: 244500, min: 10000, max: 1000000, step: 10 },
     buildMaxHeight: { value: 7720, min: 1000, max: 100000, step: 10 },
+    dif: { value: 200, min: 1, max: 10000, step: 10 },
   });
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const usePopuplationHistogram = ({ map }: Props) => {
             cellSize, // Використовуємо динамічне значення cellSize
             name: city.name,
             gap,
+            dif,
             minPopulation,
             maxPopulation,
             newMax: maxHeight,
@@ -84,49 +86,101 @@ const usePopuplationHistogram = ({ map }: Props) => {
           },
         });
 
+        const filterPopulationLabel: FilterSpecification = [
+          "case",
+          [
+            "all",
+            ["<=", ["zoom"], 0],
+            [">=", ["get", "population"], 2000000],
+            ["==", ["get", "isTopRank"], true],
+          ],
+          true,
+          [
+            "all",
+            ["<=", ["zoom"], 5],
+            [">=", ["get", "population"], 1000000],
+            ["==", ["get", "isTopRank"], true],
+          ],
+          true,
+          [
+            "all",
+            ["<=", ["zoom"], 6],
+            [">=", ["get", "population"], 500000],
+            ["==", ["get", "isTopRank"], true],
+          ],
+          true,
+          [
+            "all",
+            [">=", ["zoom"], 7],
+            [">=", ["get", "population"], 200000],
+            ["==", ["get", "isTopRank"], true],
+          ],
+          true,
+          [
+            "all",
+            [">=", ["zoom"], 8],
+            [">=", ["get", "population"], 100000],
+            ["==", ["get", "isTopRank"], true],
+          ],
+          true,
+          [
+            "all",
+            [">=", ["zoom"], 9],
+            [">=", ["get", "population"], 10000],
+            ["==", ["get", "isTopRank"], true],
+          ],
+          true,
+          ["all", [">=", ["zoom"], 11], ["==", ["get", "isTopRank"], true]],
+          true,
+          false, // Якщо жодна з умов не виконується, не показувати лейбли
+        ];
+        const textFont = ["Open Sans Regular", "Arial Unicode MS Regular"];
+        const textPopulationSize = 10;
+        const textNameSize = 12;
         map.addLayer({
           id: "population-labels",
           type: "symbol",
           source: "cities",
-          minzoom: 10,
           layout: {
             "text-field": ["get", "population"],
-            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-            "text-size": 8,
+            "text-font": textFont,
+            "text-size": textPopulationSize,
             "symbol-z-elevate": true,
             "symbol-z-order": "viewport-y",
             "text-allow-overlap": true,
-            "text-offset": [0, -4],
+            "text-offset": [0, -2],
           },
           paint: {
-            "text-color": "#86efac",
-            "text-opacity": 0.8,
+            "text-color": "#FFFFFF", // білий колір
+            "text-halo-color": "#000000", // чорна обводка для покращення контрасту
+            "text-halo-width": 1,
+            "text-opacity": 0.9, // легка прозорість
           },
-          filter: ["==", "isTopRank", true],
+          filter: filterPopulationLabel,
         });
-
         map.addLayer({
           id: "name-labels",
           type: "symbol",
           source: "cities",
-          minzoom: 10,
           layout: {
             "text-field": ["get", "name"],
-            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-            "text-size": 9,
+            "text-font": textFont,
+            "text-size": textNameSize,
             "symbol-z-elevate": true,
             "symbol-z-order": "viewport-y",
-            "text-offset": [0, -2],
+            "text-offset": [0, -3],
           },
           paint: {
-            "text-color": "#FFFFFF",
-            "text-opacity": 0.5,
+            "text-color": "#FFFFFF", // білий колір
+            "text-halo-color": "#000000", // чорна обводка для покращення контрасту
+            "text-halo-width": 1,
+            "text-opacity": 0.9, // легка прозорість
           },
-          filter: ["==", "isTopRank", true],
+          filter: filterPopulationLabel,
         });
       }
     }
-  }, [map, places, cellSize, gap, buildMaxHeight, maxHeight]); // Додаємо залежність на `cellSize`
+  }, [map, places, cellSize, gap, buildMaxHeight, maxHeight, dif]); // Додаємо залежність на `cellSize`
   return { loading, places };
 };
 

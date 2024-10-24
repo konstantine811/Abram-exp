@@ -30,6 +30,7 @@ export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
     center,
     gap,
     maxHeight,
+    dif,
     maxPopulation,
     minPopulation,
     name,
@@ -67,7 +68,7 @@ export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
   const lonCorrectionFactor =
     180 / Math.PI / (6378137 * Math.cos(center[1] * (Math.PI / 180))); // Зміна довготи
 
-  let currentMaxHeight = maxHeight - 1000; // Початковий рівень висоти для наступних квадратів
+  let currentMaxHeight = maxHeight - dif; // Початковий рівень висоти для наступних квадратів
   let radius = 1;
 
   // Продовжуємо поки є залишкове населення
@@ -109,7 +110,7 @@ export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
     }
 
     currentLevel++;
-    currentMaxHeight -= 1000; // Зменшуємо висоту для наступного рівня
+    currentMaxHeight -= dif; // Зменшуємо висоту для наступного рівня
     radius++; // Збільшуємо радіус для наступного шару
   }
 
