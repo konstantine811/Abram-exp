@@ -12,7 +12,7 @@ export class MapObject3D {
   }
 
   get coordinates(): Vector3Type {
-    return this.coordinates;
+    return this._coordinates;
   }
 
   get object(): Object3D {

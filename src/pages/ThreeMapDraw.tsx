@@ -4,7 +4,7 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { FeatureCollection } from "geojson";
 import { Leva, useControls } from "leva";
 import Geolocation from "../components/Geolocation";
-import useMapThree from "@/hooks/map-hooks/useMapThree";
+// import useMapThree from "@/hooks/map-hooks/useMapThree";
 
 const SOURCE_NAMES = {
   ThreePolygons: "3d-polygon-source",
@@ -18,7 +18,7 @@ const ThreeMapDraw = () => {
     features: [],
   });
   // for drawing 3d polygons
-  useMapThree({ map });
+  // useMapThree({ map });
 
   // Використовуємо Leva для контролю за кутами та інтенсивністю світла
   const { azimuthalAngle, polarAngle, intensity } = useControls({

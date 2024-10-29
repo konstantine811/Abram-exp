@@ -20,13 +20,21 @@ export class ThreeBox {
   private scene!: Scene;
   private camera!: PerspectiveCamera;
   private world!: Group;
-  private cameraSync!: CameraSync;
-  private raycaster!: Raycaster;
+  private _cameraSync!: CameraSync;
+  private _raycaster!: Raycaster;
   constructor(map: Map, gl: WebGLRenderingContext, options?: IThreeboxOptions) {
     this.map = map;
     this.gl = gl;
     this.options = options || defaultOptions;
     this.init();
+  }
+
+  get cameraSync() {
+    return this._cameraSync;
+  }
+
+  get raycaster() {
+    return this._raycaster;
   }
 
   private init() {
@@ -54,9 +62,9 @@ export class ThreeBox {
     // It automatically registers to listen for move events on the map so we don't need to do that here
     this.world = new Group();
     this.scene.add(this.world);
-    this.cameraSync = new CameraSync(this.map, this.camera, this.world);
+    this._cameraSync = new CameraSync(this.map, this.camera, this.world);
     //raycaster for mouse events
-    this.raycaster = new Raycaster();
+    this._raycaster = new Raycaster();
 
     if (this.options.defaultLights) {
       this.defaultLights();
