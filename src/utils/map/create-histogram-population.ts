@@ -23,7 +23,6 @@ function createSquare(center: [number, number], sizeInMeters: number) {
     ],
   };
 }
-
 export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
   const {
     cellSize,
@@ -48,7 +47,6 @@ export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
       (newMax - newMin) +
     newMin;
   remainingPopulation -= centralHeight;
-  let currentLevel = 1;
 
   resultFeatures.push({
     type: "Feature",
@@ -75,8 +73,8 @@ export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
   while (remainingPopulation > 0 && currentMaxHeight > 0) {
     for (let x = -radius; x <= radius; x++) {
       for (let y = -radius; y <= radius; y++) {
-        // Пропускаємо центральний стовпчик
-        if (x === 0 && y === 0) continue;
+        // Пропускаємо клітинки, що не знаходяться на зовнішньому краю поточного кільця
+        if (Math.abs(x) !== radius && Math.abs(y) !== radius) continue;
 
         if (remainingPopulation <= 0) break;
 
@@ -91,8 +89,8 @@ export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
 
         // Застосовуємо відступ (gap) до кожного нового квадрата
         const newCenter: [number, number] = [
-          center[0] + (x * cellSize + x * gap) * lonCorrectionFactor, // Зміщення по довготі з відступом
-          center[1] + (y * cellSize + y * gap) * latCorrectionFactor, // Зміщення по широті з відступом
+          center[0] + x * (cellSize + gap) * lonCorrectionFactor, // Зміщення по довготі з відступом
+          center[1] + y * (cellSize + gap) * latCorrectionFactor, // Зміщення по широті з відступом
         ];
 
         resultFeatures.push({
@@ -103,16 +101,14 @@ export function createMultipleExtrusions(params: ICreateMultipleExtrusions) {
             normalizedPopulation,
             population: totalPopulation,
             textOffsetY: -(normalizedPopulation / 1000),
-            name: `${name}_${currentLevel}`,
+            name: `${name}_${radius}`,
           },
         });
       }
     }
 
-    currentLevel++;
     currentMaxHeight -= dif; // Зменшуємо висоту для наступного рівня
-    radius++; // Збільшуємо радіус для наступного шару
+    radius++; // Збільшуємо радіус для наступного шару, щоб новий шар був зовні
   }
-
   return resultFeatures;
 }

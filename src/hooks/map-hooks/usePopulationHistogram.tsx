@@ -13,9 +13,9 @@ const usePopuplationHistogram = ({ map }: Props) => {
   const { places, loading } = useFetchPopulationPlace();
   // Використовуємо Leva для контролю за кутами та інтенсивністю світла
   const { cellSize, gap, maxHeight, buildMaxHeight, dif } = useControls({
-    cellSize: { value: 1000, min: 500, max: 30000, step: 1 },
-    gap: { value: 100, min: 0, max: 10000, step: 1 },
-    maxHeight: { value: 244500, min: 10000, max: 1000000, step: 10 },
+    cellSize: { value: 600, min: 10, max: 3000, step: 1 },
+    gap: { value: 10, min: 0, max: 100, step: 1 },
+    maxHeight: { value: 177320, min: 10000, max: 1000000, step: 10 },
     buildMaxHeight: { value: 7720, min: 1000, max: 100000, step: 10 },
     dif: { value: 200, min: 1, max: 10000, step: 10 },
   });
@@ -74,6 +74,12 @@ const usePopuplationHistogram = ({ map }: Props) => {
               ["get", "normalizedPopulation"],
               newMin,
               "#172554",
+              (newMin + 1) * 200,
+              "#1e3a8a",
+              (newMin + 1) * 1000,
+              "#1e40af",
+              (newMin + 1) * 3000,
+              "#2563eb",
               maxHeight / 4,
               "#4f46e5",
               maxHeight / 2,

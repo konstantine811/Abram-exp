@@ -49,7 +49,6 @@ const GeolocationExample = ({ map }: Props) => {
     // Функція для обробки успішного отримання позиції
     const handlePositionUpdate: PositionCallback = (position) => {
       const { latitude, longitude } = position.coords;
-      console.log("position", position);
       // Оновлюємо джерело даних для нових координат
       const source = map.getSource(
         SourceNames.GpsPoint
@@ -70,13 +69,13 @@ const GeolocationExample = ({ map }: Props) => {
         });
       }
       // Наближаємо камеру до об'єкта та повертаємо її
-      map.flyTo({
-        center: [longitude, latitude],
-        zoom: 18, // Наближаємось
-        pitch: 60, // Нахиляємо камеру
-        bearing: 45, // Поворот
-        speed: 1.2, // Швидкість руху камери
-      });
+      // map.flyTo({
+      //   center: [longitude, latitude],
+      //   zoom: 18, // Наближаємось
+      //   pitch: 60, // Нахиляємо камеру
+      //   bearing: 45, // Поворот
+      //   speed: 1.2, // Швидкість руху камери
+      // });
       setLocation(position.coords);
     };
 
@@ -85,7 +84,6 @@ const GeolocationExample = ({ map }: Props) => {
       setLocation(null);
       setError(error.message);
     };
-
     if (navigator.geolocation) {
       // Використовуємо watchPosition для отримання оновлень у реальному часі
       navigator.geolocation.watchPosition(handlePositionUpdate, handleError, {
