@@ -1,4 +1,7 @@
-import { IThreeboxOptions } from "@/models/map/three-box/three-box";
+import {
+  ISphereObjectOptions,
+  IThreeboxOptions,
+} from "@/models/map/three-box/three-box";
 import { Map } from "mapbox-gl";
 import {
   AmbientLight,
@@ -11,6 +14,8 @@ import {
 } from "three";
 import { CameraSync } from "./camera/cameraSync";
 import { defaultOptions } from "./utils/config";
+import { AnimationManager } from "./animation/animationManager";
+import { Sphere } from "./objects/sphere";
 
 export class ThreeBox {
   private map: Map;
@@ -22,6 +27,7 @@ export class ThreeBox {
   private world!: Group;
   private _cameraSync!: CameraSync;
   private _raycaster!: Raycaster;
+  private _animationManager!: AnimationManager;
   constructor(map: Map, gl: WebGLRenderingContext, options?: IThreeboxOptions) {
     this.map = map;
     this.gl = gl;
@@ -65,7 +71,7 @@ export class ThreeBox {
     this._cameraSync = new CameraSync(this.map, this.camera, this.world);
     //raycaster for mouse events
     this._raycaster = new Raycaster();
-
+    this._animationManager = AnimationManager.getInstance(this.map);
     if (this.options.defaultLights) {
       this.defaultLights();
     }
@@ -79,5 +85,29 @@ export class ThreeBox {
     this.world.add(sunlight);
   }
 
-  objects() {}
+  addSphere(options: ISphereObjectOptions, isStatic: boolean = false) {
+    const sphere = new Sphere(
+      options,
+      this.world,
+      this._animationManager,
+      this.map,
+      isStatic
+    );
+    return sphere;
+  }
+
+  update() {
+    if (this.map && this.map.repaint) {
+      this.map.repaint = false;
+    }
+    const timestamp = Date.now();
+    // UPdate any animations
+    this._animationManager.update(timestamp);
+    this.renderer.state.reset();
+    // Render the scene and repaint the map
+    this.renderer.render(this.scene, this.camera);
+    if (this.options.passiveRendering === false) {
+      this.map.triggerRepaint();
+    }
+  }
 }

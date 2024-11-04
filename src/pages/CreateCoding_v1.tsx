@@ -1,3 +1,5 @@
+// import { drawArrayRect } from "@/utils/2d-canvas/array-rect";
+import { transformRect } from "@/utils/2d-canvas/transform";
 import { useEffect, useRef } from "react";
 
 const CreativeCodingV1 = () => {
@@ -7,20 +9,8 @@ const CreativeCodingV1 = () => {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.fillStyle = "red";
-        ctx.fillRect(0, 0, 100, 100);
-
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = "blue";
-        ctx.beginPath();
-        ctx.rect(100, 100, 100, 100);
-        ctx.stroke();
-
-        ctx.strokeStyle = "green";
-        ctx.beginPath();
-        ctx.arc(300, 200, 50, 0, Math.PI * 1.5);
-        ctx.stroke();
-        ctx.closePath();
+        // drawArrayRect(ctx);
+        transformRect(ctx);
       }
     }
   }, []);

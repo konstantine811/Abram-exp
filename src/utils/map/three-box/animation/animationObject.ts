@@ -14,7 +14,7 @@ import {
   radify,
   typeScale,
   validate,
-} from "../utils/utils-object";
+} from "../utils/utils-transform";
 import { MapObject3D } from "../objects/Objects3d";
 import { Map } from "mapbox-gl";
 
@@ -60,10 +60,12 @@ export class AnimationObject3D {
       const newParams: IObjectAnimationOptions = {
         start: Date.now(),
         expiration: Date.now() + options.duration,
+        duration: options.duration,
         endState: {
           position: object.position.clone(),
           rotation: [object.rotation.x, object.rotation.y, object.rotation.z],
           scale: object.scale.toArray(),
+          duration: options.duration,
         },
       };
       // Перевіряємо, чи потрібно рухати, повертати чи змінювати масштаб
@@ -77,6 +79,11 @@ export class AnimationObject3D {
       if (rotating) {
         const r = object.rotation;
         animObj.startRoration = [r.x, r.y, r.z];
+        if (!animObj.endState) {
+          animObj.endState = {
+            duration: options.duration,
+          };
+        }
         animObj.endState.rotation = rotating;
 
         // Обчислюємо обертання за мілісекунду для кожної осі
@@ -91,6 +98,11 @@ export class AnimationObject3D {
       if (scaling) {
         const s = object.scale;
         animObj.startScale = [s.x, s.y, s.z];
+        if (!animObj.endState) {
+          animObj.endState = {
+            duration: options.duration,
+          };
+        }
         animObj.endState.scale = typeScale(scaling, animObj.startScale);
 
         // Обчислюємо зміну масштабу за мілісекунду для кожної осі
@@ -101,7 +113,7 @@ export class AnimationObject3D {
         }) as Vector3Type;
       }
       // Якщо потрібен переклад, створюємо криву руху
-      if (translating) {
+      if (translating && animObj.coords) {
         animObj.pathCurve = new CatmullRomCurve3(
           lnglatsToWorld([this._mapObject.coordinates, animObj.coords])
         );
@@ -129,7 +141,7 @@ export class AnimationObject3D {
     return this;
   }
 
-  private setObject(options: IObjectOptions) {
+  setObject(options: IObjectOptions) {
     const p = options.position; // lnglat;
     const r = options.rotation; // radians;
     const s = options.scale; // scale;
@@ -137,8 +149,8 @@ export class AnimationObject3D {
     const q = options.quaternion; // quaternion;
 
     if (p) {
-      this._coordinates = p;
-      const c = projectToWorld(p);
+      this._coordinates = [p.x, p.y, p.z];
+      const c = projectToWorld(this._coordinates);
       this._position.copy(c);
     }
 
@@ -154,7 +166,7 @@ export class AnimationObject3D {
     }
 
     if (w) {
-      this._position.copy(new Vector3(w[0], w[1], w[2]));
+      this._position.copy(w);
     }
     this._map.repaint = true;
   }

@@ -1,81 +1,35 @@
-import { Canvas } from "@react-three/fiber";
-import Polygon from "../components/Polygon";
-import { Grid, OrbitControls } from "@react-three/drei";
-import { DoubleSide } from "three";
-import { Physics, RigidBody } from "@react-three/rapier";
+import { GizmoHelper, GizmoViewport, Grid } from "@react-three/drei";
+import PhysicWorld from "@/components/three-scenes/three-simple-scene/PhysicWorld";
+import Experience from "@/components/three-scenes/three-simple-scene/Experience";
+import Lights from "@/components/three-scenes/three-simple-scene/Lights";
 
 const ThreeSimpleScene = () => {
   return (
-    <div className="h-screen">
-      <Canvas
-        shadows
-        dpr={[1, 1.5]}
-        gl={{ antialias: true }}
-        camera={{
-          position: [0, 10, -5],
-          near: 0.1,
-          far: 100,
-        }}
-      >
-        <color attach="background" args={["#141622"]} />
-        <OrbitControls
-          rotation={[Math.PI * 0.5, 0, Math.PI * 0.5]}
-          position={[10, 1, 3]}
+    <Experience>
+      <Lights />
+      <axesHelper args={[100]} />
+      <Grid
+        position={[0, 0.01, 0]}
+        args={[10.5, 10.5]}
+        cellSize={0.6}
+        cellThickness={1}
+        cellColor={"#6f6f6f"}
+        sectionSize={3.3}
+        sectionThickness={0.5}
+        sectionColor={"#9b4b4b"}
+        fadeDistance={25}
+        fadeStrength={1}
+        infiniteGrid={true}
+      />
+      <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+        <GizmoViewport
+          axisColors={["#9b4b4b", "#2f7f4f", "#3b5b9d"]}
+          labelColor="white"
         />
-        <ambientLight intensity={0.5} />
-        <spotLight
-          position={[1, 5, 7]}
-          angle={0.15}
-          penumbra={1}
-          intensity={500}
-          castShadow
-          shadow-mapSize-width={2048} // Increase shadow map resolution
-          shadow-mapSize-height={2048}
-        />
-        <directionalLight position={[0, 10, 0]} intensity={1} />
-        <axesHelper args={[100]} />
-        <Grid
-          sectionSize={0.1}
-          sectionColor={"white"}
-          sectionThickness={1}
-          cellSize={1}
-          cellColor={"black"}
-          cellThickness={2}
-          infiniteGrid
-          fadeDistance={80}
-          fadeStrength={10}
-        />
-        <Physics>
-          {/* <Pointer /> */}
-          <Polygon />
-          <RigidBody type="fixed">
-            <mesh
-              rotation-x={Math.PI * 0.5}
-              castShadow
-              receiveShadow
-              position={[-3, -0.1, 0]}
-            >
-              <planeGeometry args={[100, 50]} />
-              <meshStandardMaterial side={DoubleSide} color="lightblue" />
-            </mesh>
-          </RigidBody>
-          <RigidBody type="dynamic">
-            <mesh
-              rotation-x={Math.PI * 0.5}
-              castShadow
-              receiveShadow
-              position={[-1, 3, 1]}
-            >
-              <boxGeometry args={[1, 1, 1]} />
-              <meshStandardMaterial side={DoubleSide} color="lightblue" />
-            </mesh>
-          </RigidBody>
-          {/* Add ambient light */}
+      </GizmoHelper>
 
-          {/* Render the polygon */}
-        </Physics>
-      </Canvas>
-    </div>
+      <PhysicWorld />
+    </Experience>
   );
 };
 

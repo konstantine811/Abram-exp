@@ -1,7 +1,7 @@
 import { Map } from "mapbox-gl";
 import { Group, Matrix4, PerspectiveCamera } from "three";
 import { WORLD_CONFIG } from "../utils/config";
-import { makePerspectiveMatrix } from "../utils/3d-utils";
+import { makePerspectiveMatrix } from "../utils/utils-transform";
 
 interface CameraState {
   fov: number;

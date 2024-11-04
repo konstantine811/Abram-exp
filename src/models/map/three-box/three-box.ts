@@ -1,4 +1,9 @@
-import { CatmullRomCurve3, Vector3 } from "three";
+import {
+  BufferGeometry,
+  CatmullRomCurve3,
+  NormalBufferAttributes,
+  Vector3,
+} from "three";
 
 export interface IThreeboxOptions {
   defaultLights?: boolean;
@@ -11,11 +16,11 @@ export interface IThreeboxOptions {
 }
 
 export interface IObjectOptions {
-  position: Vector3Type;
-  worldCoordinates: Vector3Type;
-  quaternion: Vector4Type;
+  position?: Vector3;
+  worldCoordinates?: Vector3;
+  quaternion?: Vector4Type;
   duration: number;
-  coords: Vector3Type | Vector2Type;
+  coords?: Vector3Type | Vector2Type;
   rotation?: Vector3Type;
   scale?: Vector3Type;
   scaleX?: number;
@@ -25,19 +30,13 @@ export interface IObjectOptions {
   startScale?: Vector3Type;
 }
 
-export interface IObjectAnimationOptions {
+export interface IObjectAnimationOptions extends IObjectOptions {
   start: number;
-  expiration: number;
+  expiration: number | boolean;
   rotationPerMs?: Vector3Type;
   scalePerMs?: Vector3Type;
   pathCurve?: CatmullRomCurve3;
-  endState: IObjectAnimationEndState;
-}
-
-export interface IObjectAnimationEndState {
-  position: Vector3;
-  rotation: Vector3Type;
-  scale: Vector3Type;
+  endState?: IObjectOptions;
 }
 
 export interface IObjectAnimationEntry {
@@ -52,14 +51,61 @@ export interface IDefaultOptions {
   [key: string]: string | number | boolean | null | Vector2Type | Vector3Type;
 }
 
-export interface IAnimationFollowPathOptions {
+export interface IAnimationFollowPathOptions extends IObjectAnimationOptions {
   path: Vector3Type[];
   duration: number;
   trackHeading: boolean;
-  pathCurve: CatmullRomCurve3;
-  start: number;
-  expiration: number;
   cb: () => void;
+}
+
+// Interface for material options
+export interface IMaterialOptions {
+  material?: IObjectMaterialTypes;
+  color?: string | number;
+  opacity?: number;
+}
+
+export interface ISphereObjectOptions extends IMaterialOptions {
+  radius?: number;
+  units?: IObjectUntis;
+  sides?: number;
+  position: Vector3Type;
+}
+
+export interface ILineObjectOptions extends IMaterialOptions {
+  geometry: (Vector3Type | Vector2Type)[];
+  width?: number;
+}
+
+export interface ITubeObjectOptions extends IMaterialOptions {
+  geometry: (Vector3Type | Vector2Type)[];
+  radius?: number;
+  sides?: number;
+}
+
+export interface INormalizedVertices {
+  vertices: Vector3[];
+  position: Vector3;
+  radius: number;
+  geometry: BufferGeometry<NormalBufferAttributes>;
+}
+
+export enum IObjectMaterialTypes {
+  meshBasicMaterial = "MeshBasicMaterial",
+  meshLambertMaterial = "MeshLambertMaterial",
+  meshPhongMaterial = "MeshPhongMaterial",
+  meshStandardMaterial = "MeshStandardMaterial",
+  meshPhysicalMaterial = "MeshPhysicalMaterial",
+  meshMatcapMaterial = "MeshMatcapMaterial",
+  meshDepthMaterial = "MeshDepthMaterial",
+  meshNormalMaterial = "MeshNormalMaterial",
+  meshDistanceMaterial = "MeshDistanceMaterial",
+  meshFaceMaterial = "MeshFaceMaterial",
+}
+
+export enum IObjectUntis {
+  meters = "meters",
+  sceneUnits = "scene",
 }
 
 export enum AnimationTypes {

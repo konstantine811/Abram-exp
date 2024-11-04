@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl, { Map } from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { FeatureCollection } from "geojson";
-import { Leva, useControls } from "leva";
+import { Leva } from "leva";
 import Geolocation from "../components/Geolocation";
+// import { ThreeBox } from "@/utils/map/three-box/threeBox";
+import { Threebox } from "threebox-plugin";
 // import useMapThree from "@/hooks/map-hooks/useMapThree";
-
 const SOURCE_NAMES = {
   ThreePolygons: "3d-polygon-source",
 };
@@ -20,33 +21,6 @@ const ThreeMapDraw = () => {
   // for drawing 3d polygons
   // useMapThree({ map });
 
-  // Використовуємо Leva для контролю за кутами та інтенсивністю світла
-  const { azimuthalAngle, polarAngle, intensity } = useControls({
-    azimuthalAngle: { value: 200, min: 0, max: 360, step: 1 },
-    polarAngle: { value: 60, min: 0, max: 90, step: 1 },
-    intensity: { value: 0.8, min: 0, max: 1, step: 0.01 },
-  });
-
-  // Оновлення положення сонця при зміні контролів
-  useEffect(() => {
-    // console.log("on change");
-    if (map) {
-      // Add a directional light
-      // console.log(map.getLights());
-      map.setLights([
-        {
-          id: "flat",
-          type: "flat",
-          properties: {
-            color: "rgba(255.0, 255.0, 0.0, 1.0)",
-            intensity: intensity,
-            position: [azimuthalAngle, polarAngle, 100],
-          },
-        },
-      ]);
-    }
-  }, [map, azimuthalAngle, polarAngle, intensity]);
-
   useEffect(() => {
     mapboxgl.accessToken =
       "pk.eyJ1Ijoia29uc3RhbnRpbmU4MTEiLCJhIjoiY2themphMDhpMGsyazJybWlpbDdmMGthdSJ9.m2RIe_g8m5dqbce0JrO73w";
@@ -56,6 +30,39 @@ const ThreeMapDraw = () => {
         style: "mapbox://styles/konstantine811/clxll1zwx00eg01qqcrlphbmk",
         center: [31.1656, 48.3794],
         zoom: 5,
+      });
+
+      mapRef.current.on("style.load", () => {
+        const map = mapRef.current;
+        if (map) {
+          const webGl = map.getCanvas().getContext("webgl2");
+          if (!webGl) {
+            throw new Error("WebGL is not supported");
+          }
+          const tb = (window.tb = new Threebox(map, webGl, {
+            defaultLights: true,
+            enablePicking: false,
+            enableDraggingObjects: false,
+            enableRotatingObjects: false,
+            enableSelectingObjects: false,
+            enableTooltips: false,
+          }));
+          map.addLayer({
+            id: "3d-models",
+            type: "custom",
+            renderingMode: "3d",
+            render: () => {
+              tb.update();
+            },
+          });
+          map.on("click", () => {
+            // const sphere = tb
+            //   .sphere({ color: "red", material: "MeshStandardMaterial" })
+            //   .setCoords([e.lngLat.lng, e.lngLat.lat, 0]);
+            // // add sphere to the scene
+            // tb.add(sphere);
+          });
+        }
       });
 
       mapRef.current.on("load", () => {

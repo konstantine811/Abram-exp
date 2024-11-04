@@ -1,5 +1,3 @@
-import { DoubleSide } from "three";
-
 import { RigidBody } from "@react-three/rapier";
 
 const Polygon = () => {
@@ -14,7 +12,7 @@ const Polygon = () => {
         {/* Create geometry from the shape */}
         <boxGeometry args={[0.5, 0.1, 1]} />
         {/* Apply a material */}
-        <meshStandardMaterial side={DoubleSide} color="red" />
+        <meshStandardMaterial color="red" />
       </mesh>
     </RigidBody>
   );

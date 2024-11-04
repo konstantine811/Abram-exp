@@ -1,9 +1,10 @@
-import { Box, Component, Film, Globe } from "lucide-react";
+import { Box, Component, Film, Globe, Swords } from "lucide-react";
 import ThreeSimpleScene from "../pages/ThreeSimpleScene";
 import TrainAnimationSpring from "../pages/TrainAnimationString";
 import ThreeMap from "../pages/ThreeMap";
 import ThreeMapDraw from "../pages/ThreeMapDraw";
 import CreativeCodingV1 from "../pages/CreateCoding_v1";
+import TwoDGameV1 from "@/pages/2dGame_v1";
 
 export const navigationConfig = [
   {
@@ -30,5 +31,10 @@ export const navigationConfig = [
     path: "/creative-coding-v1",
     element: <CreativeCodingV1 />,
     icon: <Component />,
+  },
+  {
+    path: "/2d-game-v1",
+    element: <TwoDGameV1 />,
+    icon: <Swords />,
   },
 ];

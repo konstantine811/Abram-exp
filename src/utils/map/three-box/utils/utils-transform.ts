@@ -1,6 +1,16 @@
-import { Vector2Type, Vector3Type } from "@/models/map/three-box/three-box";
+import {
+  INormalizedVertices,
+  Vector2Type,
+  Vector3Type,
+} from "@/models/map/three-box/three-box";
 import { WORLD_CONFIG } from "./config";
-import { Vector3 } from "three";
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Matrix4,
+  Matrix4Tuple,
+  Vector3,
+} from "three";
 
 export function extend<T, D>(original: T, extension: D): T & D {
   return Object.assign({}, original, extension);
@@ -16,6 +26,44 @@ export function typeScale(
     return applyDefault(s, currentScale);
   }
   return currentScale;
+}
+
+export function makePerspectiveMatrix(
+  fovy: number,
+  aspect: number,
+  near: number,
+  far: number
+): Matrix4 {
+  // Create a new Matrix4 instance
+  const out = new Matrix4();
+
+  // Calculate focal length (f) and near-far range factor (nf)
+  const f = 1.0 / Math.tan(fovy / 2);
+  const nf = 1 / (near - far);
+
+  // Define the perspective projection matrix elements
+  const newMatrix: Matrix4Tuple = [
+    f / aspect,
+    0,
+    0,
+    0,
+    0,
+    f,
+    0,
+    0,
+    0,
+    0,
+    (far + near) * nf,
+    -1,
+    0,
+    0,
+    2 * far * near * nf,
+    0,
+  ];
+
+  // Assign the elements to the Matrix4 instance
+  out.elements = newMatrix;
+  return out;
 }
 
 export function applyDefault(
@@ -39,7 +87,7 @@ export function projectToWorld(coords: Vector3Type | Vector2Type): Vector3 {
       WORLD_CONFIG.PROJECTION_WORLD_SIZE,
     -WORLD_CONFIG.MERCATOR_A *
       Math.log(
-        Math.tan(Math.PI * 0.25) + 0.5 * coords[1] * WORLD_CONFIG.DEG2RAD
+        Math.tan(Math.PI * 0.25 + 0.5 * WORLD_CONFIG.DEG2RAD * coords[1])
       ) *
       WORLD_CONFIG.PROJECTION_WORLD_SIZE,
   ];
@@ -103,4 +151,35 @@ export function validate<T>(userInputs: Partial<T>, defaults: T): T {
   }
 
   return validatedOutput;
+}
+
+export function createBufferGeometry(vertices: Vector3[]): INormalizedVertices {
+  // Створюємо BufferGeometry та додаємо атрибут позиції з вершин
+  const geometry = new BufferGeometry();
+  const positionArray = new Float32Array(vertices.length * 3);
+  vertices.forEach((v3, i) => {
+    positionArray[i * 3] = v3.x;
+    positionArray[i * 3 + 1] = v3.y;
+    positionArray[i * 3 + 2] = v3.z;
+  });
+
+  geometry.setAttribute("position", new BufferAttribute(positionArray, 3));
+
+  // Обчислюємо bounding sphere для обчислення центра та радіуса
+  geometry.computeBoundingSphere();
+  const center = geometry.boundingSphere!.center.clone();
+  const radius = geometry.boundingSphere!.radius;
+
+  // Нормалізуємо вершини, віднімаючи центр
+  const scaled = vertices.map((v3) => v3.clone().sub(center));
+
+  return { vertices: scaled, position: center, radius, geometry };
+}
+
+export function projectedUntisPerMeter(latitude: number) {
+  return Math.abs(
+    WORLD_CONFIG.WORLD_SIZE /
+      Math.cos(WORLD_CONFIG.DEG2RAD * latitude) /
+      WORLD_CONFIG.EARTH_CIRCUMFERENCE
+  );
 }
