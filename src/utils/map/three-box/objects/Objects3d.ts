@@ -36,7 +36,7 @@ export class MapObject3D {
     this._world = world;
     this._animationManager = animationManager;
     this._isStatic = isStatic;
-    if (isStatic) {
+    if (this._isStatic) {
       obj.userData.units = obj.userData.units || "meters";
     }
   }

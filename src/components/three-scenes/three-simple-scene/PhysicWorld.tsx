@@ -30,7 +30,11 @@ const PhysicWorld = () => {
           position={[-3, 0, 0]}
         >
           <planeGeometry args={[100, 100]} />
-          <meshStandardMaterial color="#4b5563" />
+          <meshPhysicalMaterial
+            color="white"
+            clearcoat={0.5}
+            reflectivity={0.8}
+          />
         </mesh>
       </RigidBody>
       <RigidBody type="dynamic">
@@ -42,6 +46,8 @@ const PhysicWorld = () => {
         >
           <boxGeometry args={[1, 1, 1]} />
           <meshStandardMaterial
+            roughness={1}
+            metalness={0}
             color={color}
             transparent={transparent}
             opacity={opacity}

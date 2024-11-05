@@ -8,6 +8,7 @@ import {
   PointLightHelper,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
+import CustomSpotLight from "./SpotLight";
 
 const Lights = () => {
   const lightRef = useRef<DirectionalLight>(null!);
@@ -45,6 +46,12 @@ const Lights = () => {
         decay={decay}
         castShadow
       />
+      <hemisphereLight
+        color={"deepskyblue"}
+        groundColor={"sandybrown"}
+        intensity={1}
+      />
+      <CustomSpotLight />
     </>
   );
 };
