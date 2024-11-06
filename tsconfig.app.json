@@ -21,6 +21,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "canvas-sketch-util": ["./node_modules/canvas-sketch-util-types"],
+      "canvas-sketch-util/*": ["./node_modules/canvas-sketch-util-types/*"],
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
       "@hooks/*": ["src/hooks/*"],

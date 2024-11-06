@@ -12,7 +12,6 @@ export function drawArrayRect(ctx: CanvasRenderingContext2D) {
       ctx.strokeStyle = "red";
       ctx.rect(x, y, rectWidth, rectHeight);
       ctx.stroke();
-
       if (Math.random() > 0.5) {
         ctx.beginPath();
         ctx.rect(x + 8, y + 8, rectWidth - 16, rectHeight - 16);
