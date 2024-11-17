@@ -1,4 +1,9 @@
-import { GizmoHelper, GizmoViewport, Grid } from "@react-three/drei";
+import {
+  BakeShadows,
+  GizmoHelper,
+  GizmoViewport,
+  Grid,
+} from "@react-three/drei";
 import PhysicWorld from "@/components/three-scenes/three-simple-scene/PhysicWorld";
 import Experience from "@/components/three-scenes/three-simple-scene/Experience";
 import Lights from "@/components/three-scenes/three-simple-scene/Lights";
@@ -7,6 +12,7 @@ const ThreeSimpleScene = () => {
   return (
     <Experience>
       <Lights />
+      <BakeShadows />
       <axesHelper args={[100]} />
       <Grid
         position={[0, 0.01, 0]}

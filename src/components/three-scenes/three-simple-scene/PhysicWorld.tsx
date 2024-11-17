@@ -23,12 +23,7 @@ const PhysicWorld = () => {
       {/* <Pointer /> */}
       <Polygon />
       <RigidBody type="fixed">
-        <mesh
-          rotation-x={-Math.PI * 0.5}
-          castShadow
-          receiveShadow
-          position={[-3, 0, 0]}
-        >
+        <mesh rotation-x={-Math.PI * 0.5} receiveShadow position={[-3, 0, 0]}>
           <planeGeometry args={[100, 100]} />
           <meshPhysicalMaterial
             color="white"
