@@ -1,7 +1,7 @@
 import { Player } from "./player";
 
 export class Init2dGame {
-  private canvas: HTMLCanvasElement;
+  private _canvas: HTMLCanvasElement;
   private windowSize: { width: number; height: number };
   private ctx: CanvasRenderingContext2D;
   private player!: Player;
@@ -12,10 +12,14 @@ export class Init2dGame {
     width: number,
     height: number
   ) {
-    this.canvas = canvasEl;
+    this._canvas = canvasEl;
     this.windowSize = { width, height };
     this.ctx = ctx;
     this.init();
+  }
+
+  get canvas() {
+    return this._canvas;
   }
 
   private init() {
