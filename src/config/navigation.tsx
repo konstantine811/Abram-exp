@@ -3,6 +3,7 @@ import {
   Component,
   Film,
   Globe,
+  Joystick,
   Swords,
   TowerControl,
 } from "lucide-react";
@@ -14,6 +15,7 @@ import CreativeCodingV1 from "../pages/CreateCoding_v1";
 import TwoDGameV1 from "@/pages/2dGame_v1";
 import ThreeSimpleScene_v2 from "@/pages/ThreeSimpleScene_v2";
 import ThreeSimpleModel from "@/pages/ThreeSimpleModel";
+import ThreeEvents from "@/pages/ThreeEvents";
 
 export const navigationConfig = [
   {
@@ -30,6 +32,11 @@ export const navigationConfig = [
     path: "/three-simple-model",
     element: <ThreeSimpleModel />,
     icon: <TowerControl />,
+  },
+  {
+    path: "/three-events",
+    element: <ThreeEvents />,
+    icon: <Joystick />,
   },
   {
     path: "/spring",
