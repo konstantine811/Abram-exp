@@ -1,9 +1,12 @@
 import {
   Box,
+  CodeXml,
   Component,
   Film,
   Globe,
+  ImageDown,
   Joystick,
+  Snail,
   Swords,
   TowerControl,
 } from "lucide-react";
@@ -16,6 +19,10 @@ import TwoDGameV1 from "@/pages/2dGame_v1";
 import ThreeSimpleScene_v2 from "@/pages/ThreeSimpleScene_v2";
 import ThreeSimpleModel from "@/pages/ThreeSimpleModel";
 import ThreeEvents from "@/pages/ThreeEvents";
+import ThreeModels from "@/pages/ThreeModels";
+import ThreeTutorial from "@/pages/ThreeTutorial_v1";
+import ThreeTextures from "@/pages/ThreeTextures";
+import ThreeHTML from "@/pages/ThreeHTML";
 
 export const navigationConfig = [
   {
@@ -37,6 +44,26 @@ export const navigationConfig = [
     path: "/three-events",
     element: <ThreeEvents />,
     icon: <Joystick />,
+  },
+  {
+    path: "/three-models",
+    element: <ThreeModels />,
+    icon: <Snail />,
+  },
+  {
+    path: "/three-tuto",
+    element: <ThreeTutorial />,
+    icon: <Joystick />,
+  },
+  {
+    path: "/three-textures",
+    element: <ThreeTextures />,
+    icon: <ImageDown />,
+  },
+  {
+    path: "/three-html",
+    element: <ThreeHTML />,
+    icon: <CodeXml />,
   },
   {
     path: "/spring",

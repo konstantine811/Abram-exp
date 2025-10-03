@@ -111,7 +111,7 @@ const ThreeMap = () => {
   }, [animateOrbit]);
   return (
     <div className="min-h-screen relative">
-      <div className="min-h-screen relative z-10" ref={mapContainerRef} />
+      <div className="min-h-screen relative z-10" ref={mapContainerRef}></div>
       {loading && (
         <div className="fixed top-0 pointer-events-none w-full h-full z-[10000] bg-black/5  flex justify-center items-center text-black">
           Please wait, Loading a data
