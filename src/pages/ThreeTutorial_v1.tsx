@@ -1,9 +1,8 @@
 import Experience from "@/components/three-scenes/three-simple-scene/Experience";
 import WavyGrid from "@/components/three-scenes/three-simple-scene/WavyGrid";
-import { TorusGeometry } from "three";
 
 const ThreeTutorial = () => {
-  const args: [number, number, number, number] = [1, 0.3, 12, 12];
+  // const args: [number, number, number, number] = [1, 0.3, 12, 12];
   return (
     <Experience>
       {/* <mesh>
